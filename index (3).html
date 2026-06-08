@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Terravolt Eco — Partner Portal</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0a0f0d;
+      --surface: #111916;
+      --surface2: #182320;
+      --border: #1e2e28;
+      --accent: #2ecc71;
+      --accent2: #00ffa3;
+      --text: #e8f5ee;
+      --muted: #5a7a68;
+      --warning: #f39c12;
+      --danger: #e74c3c;
+      --radius: 14px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      width: 220px; min-height: 100vh;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex; flex-direction: column;
+      padding: 28px 0;
+      position: fixed; top: 0; left: 0; bottom: 0;
+      z-index: 100;
+    }
+    .logo {
+      display: flex; align-items: center; gap: 10px;
+      padding: 0 22px 28px;
+      border-bottom: 1px solid var(--border);
+    }
+    .logo-icon {
+      width: 34px; height: 34px; background: var(--accent);
+      border-radius: 8px; display: grid; place-items: center;
+      font-size: 18px; flex-shrink: 0;
+    }
+    .logo-text { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 13px; line-height: 1.2; }
+    .logo-text span { color: var(--accent); display: block; font-size: 11px; font-weight: 400; letter-spacing: .06em; }
+    nav { flex: 1; padding: 18px 12px; display: flex; flex-direction: column; gap: 2px; }
+    .nav-label { font-size: 10px; letter-spacing: .1em; color: var(--muted); padding: 10px 10px 4px; text-transform: uppercase; }
+    .nav-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 12px; border-radius: 8px;
+      color: var(--muted); cursor: pointer;
+      transition: background .15s, color .15s; font-size: 13.5px;
+    }
+    .nav-item:hover { background: var(--surface2); color: var(--text); }
+    .nav-item.active { background: #1a3028; color: var(--accent); font-weight: 500; }
+    .nav-icon { font-size: 15px; width: 20px; text-align: center; }
+    .sidebar-footer { padding: 16px 20px; border-top: 1px solid var(--border); }
+    .dealer-badge {
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 10px; padding: 10px 12px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .dealer-avatar {
+      width: 32px; height: 32px;
+      background: linear-gradient(135deg, var(--accent), #0a8a4a);
+      border-radius: 8px; display: grid; place-items: center;
+      font-family: 'Syne', sans-serif; font-weight: 800; font-size: 13px; color: #0a0f0d;
+    }
+    .dealer-name { font-weight: 500; font-size: 13px; }
+    .dealer-id { font-size: 11px; color: var(--muted); }
+
+    /* ── MAIN ── */
+    .main { margin-left: 220px; flex: 1; padding: 36px 40px; max-width: 960px; }
+
+    /* ── PAGES ── */
+    .page { display: none; }
+    .page.active { display: block; }
+
+    /* ── TOPBAR ── */
+    .topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 36px; }
+    .page-title { font-family: 'Syne', sans-serif; font-size: 26px; font-weight: 800; }
+    .page-title span { color: var(--muted); font-weight: 400; font-size: 15px; display: block; margin-top: 2px; }
+    .topbar-actions { display: flex; align-items: center; gap: 12px; }
+    .btn-icon {
+      width: 36px; height: 36px; border-radius: 8px;
+      background: var(--surface); border: 1px solid var(--border);
+      display: grid; place-items: center; cursor: pointer; font-size: 15px;
+      transition: background .15s;
+    }
+    .btn-icon:hover { background: var(--surface2); }
+
+    /* ── CARDS ── */
+    .stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin-bottom: 28px; }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 22px; }
+    .card-label { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+    .card-value { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; }
+    .card-value.green { color: var(--accent); }
+    .card-value.yellow { color: var(--warning); }
+    .card-sub { font-size: 12px; color: var(--muted); margin-top: 6px; display: flex; align-items: center; gap: 5px; }
+    .badge-up { color: var(--accent); font-size: 11px; }
+    .progress-bar { height: 4px; background: var(--border); border-radius: 99px; margin-top: 10px; overflow: hidden; }
+    .progress-fill { height: 100%; background: var(--accent); border-radius: 99px; width: 75%; }
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 28px; }
+    .section-title { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; margin-bottom: 14px; }
+
+    /* ── ACTIVITY ── */
+    .activity-list { display: flex; flex-direction: column; gap: 10px; }
+    .activity-item { display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--surface2); border-radius: 10px; }
+    .activity-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .dot-green { background: var(--accent); box-shadow: 0 0 6px var(--accent); }
+    .dot-yellow { background: var(--warning); }
+    .activity-info { flex: 1; }
+    .activity-title { font-size: 13px; font-weight: 500; }
+    .activity-time { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .activity-badge { font-size: 11px; padding: 3px 9px; border-radius: 99px; font-weight: 500; }
+    .badge-income { background: #0d2e1c; color: var(--accent); }
+    .badge-waiting { background: #2e1f0a; color: var(--warning); }
+
+    /* ── CUSTOMERS ── */
+    .customer-list { display: flex; flex-direction: column; gap: 10px; }
+    .customer-item { display: flex; align-items: center; gap: 12px; padding: 13px 14px; background: var(--surface2); border-radius: 10px; }
+    .cust-avatar { width: 36px; height: 36px; border-radius: 9px; display: grid; place-items: center; font-family: 'Syne', sans-serif; font-weight: 800; font-size: 13px; flex-shrink: 0; }
+    .av-blue { background: #0d1f3c; color: #4a9eff; }
+    .av-teal { background: #0d2e2c; color: #2eccc9; }
+    .av-purple { background: #1e0d3c; color: #a56eff; }
+    .cust-info { flex: 1; }
+    .cust-name { font-weight: 500; font-size: 13px; }
+    .cust-pkg { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .status-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 5px; }
+    .s-paid { background: var(--accent); }
+    .s-pending { background: var(--warning); }
+    .status-text { font-size: 12px; }
+    .btn-fix {
+      font-size: 11px; padding: 4px 10px; background: var(--surface);
+      border: 1px solid var(--border); border-radius: 6px; color: var(--muted);
+      cursor: pointer; transition: .15s;
+    }
+    .btn-fix:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* ── FORMS ── */
+    .form-section { margin-bottom: 28px; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-group.full { grid-column: 1/-1; }
+    label { font-size: 12px; color: var(--muted); }
+    input, select, textarea {
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 8px; padding: 9px 12px;
+      color: var(--text); font-family: 'DM Sans', sans-serif;
+      font-size: 13px; outline: none; transition: border-color .15s;
+    }
+    input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+    select option { background: var(--surface2); }
+    textarea { resize: vertical; min-height: 80px; }
+    .step-label { font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: .06em; color: var(--accent); margin-bottom: 12px; }
+    .btn-primary {
+      margin-top: 16px; padding: 11px 22px;
+      background: var(--accent); color: #0a0f0d;
+      border: none; border-radius: 9px;
+      font-family: 'Syne', sans-serif; font-weight: 700; font-size: 13px;
+      cursor: pointer; transition: background .15s, transform .1s;
+    }
+    .btn-primary:hover { background: var(--accent2); transform: translateY(-1px); }
+    .divider { height: 1px; background: var(--border); margin: 28px 0; }
+
+    /* ── UPLOAD ── */
+    .upload-zone {
+      border: 1.5px dashed var(--border); border-radius: 10px;
+      padding: 28px; text-align: center; color: var(--muted);
+      cursor: pointer; transition: border-color .15s, color .15s; margin-top: 8px;
+    }
+    .upload-zone:hover { border-color: var(--accent); color: var(--accent); }
+    .upload-icon { font-size: 26px; margin-bottom: 6px; }
+
+    /* ── WALLET ── */
+    .wallet-item {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 16px; background: var(--surface2); border-radius: 10px;
+      margin-bottom: 10px;
+      transition: opacity .4s, transform .4s;
+    }
+    .wallet-label { font-size: 13px; font-weight: 500; }
+    .wallet-ref { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .wallet-amount { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 800; color: var(--accent); }
+    .wallet-status { font-size: 11px; color: var(--accent); margin-top: 3px; text-align: right; }
+    .wallet-pending { color: var(--warning) !important; }
+
+    /* ── TICKETS ── */
+    .ticket-list { display: flex; flex-direction: column; gap: 10px; }
+    .ticket-item { display: flex; align-items: center; gap: 12px; padding: 13px 14px; background: var(--surface2); border-radius: 10px; }
+    .ticket-id { font-family: 'Syne', sans-serif; font-size: 11px; color: var(--muted); width: 70px; flex-shrink: 0; }
+    .ticket-title-text { font-size: 13px; font-weight: 500; }
+    .ticket-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .ticket-status { margin-left: auto; font-size: 11px; padding: 3px 9px; border-radius: 99px; font-weight: 500; }
+    .ts-checking { background: #2e1f0a; color: var(--warning); }
+    .ts-closed { background: #1a2e1a; color: var(--muted); }
+    .ts-open { background: #0d2e1c; color: var(--accent); }
+    .btn-new-ticket {
+      padding: 7px 14px; background: transparent;
+      border: 1px solid var(--accent); border-radius: 8px;
+      color: var(--accent); font-size: 12px; font-weight: 500;
+      cursor: pointer; transition: background .15s; margin-bottom: 14px;
+    }
+    .btn-new-ticket:hover { background: #1a3028; }
+
+    /* ── PAYMENT CHANNEL ── */
+    .payment-card { display: flex; gap: 24px; align-items: flex-start; }
+    .bank-info { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 16px 20px; min-width: 180px; }
+    .bank-name { font-weight: 600; font-size: 15px; margin-bottom: 4px; }
+    .bank-acct { font-size: 12px; color: var(--muted); }
+    .qr-box { background: white; border-radius: 10px; padding: 8px; display: inline-block; }
+    .qr-box img { display: block; border-radius: 6px; }
+    .qr-caption { text-align: center; font-size: 11px; color: var(--muted); margin-top: 6px; }
+
+    /* ── MODAL ── */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,.7); z-index: 999;
+      align-items: center; justify-content: center;
+      backdrop-filter: blur(4px);
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 16px; padding: 28px; width: 480px; max-width: 95vw;
+      animation: slideUp .25s ease;
+    }
+    @keyframes slideUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+    .modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+    .modal-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 16px; }
+    .modal-close { cursor: pointer; color: var(--muted); font-size: 20px; line-height: 1; }
+    .modal-close:hover { color: var(--text); }
+
+    /* ── TOAST ── */
+    .toast {
+      display: none; position: fixed; bottom: 28px; right: 28px;
+      background: #0d2e1c; border: 1px solid var(--accent);
+      border-radius: 12px; padding: 14px 18px;
+      align-items: center; gap: 12px; z-index: 9999;
+      animation: fadeIn .3s ease;
+      max-width: 340px;
+    }
+    .toast.show { display: flex; }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+    .toast-icon { font-size: 20px; }
+    .toast-title { font-weight: 600; font-size: 13px; }
+    .toast-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+    /* ── ERROR ── */
+    .field-error { color: var(--danger); font-size: 11px; margin-top: 4px; display: none; }
+    input.err, select.err { border-color: var(--danger); }
+
+    /* ── DARK MODE TOGGLE ── */
+    body.light {
+      --bg: #f4f7f5; --surface: #ffffff; --surface2: #eef3f0;
+      --border: #d0ddd6; --text: #0d1f18; --muted: #6b8c7a;
+    }
+
+    .accent-glow {
+      position: fixed; top: -120px; left: -80px;
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, rgba(46,204,113,.07) 0%, transparent 70%);
+      pointer-events: none; z-index: 0;
+    }
+  </style>
+</head>
+<body>
+
+<div class="accent-glow"></div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <div class="toast-icon" id="toast-icon">✅</div>
+  <div>
+    <div class="toast-title" id="toast-title"></div>
+    <div class="toast-sub" id="toast-sub"></div>
+  </div>
+</div>
+
+<!-- MODAL: Fix Customer -->
+<div class="modal-overlay" id="modal-fix">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">🛠️ Service Request</div>
+      <div class="modal-close" onclick="closeModal('modal-fix')">✕</div>
+    </div>
+    <div class="form-group" style="margin-bottom:12px;">
+      <label>Customer</label>
+      <input type="text" id="fix-customer" readonly style="opacity:.6;" />
+    </div>
+    <div class="form-group" style="margin-bottom:12px;">
+      <label>Issue Type</label>
+      <select id="fix-type">
+        <option>Noise Issue</option>
+        <option>Filter Change</option>
+        <option>Power Failure</option>
+        <option>Leak / Water Issue</option>
+        <option>Other</option>
+      </select>
+    </div>
+    <div class="form-group" style="margin-bottom:12px;">
+      <label>Description</label>
+      <textarea id="fix-desc" placeholder="Describe the issue..."></textarea>
+    </div>
+    <button class="btn-primary" style="width:100%;text-align:center;" onclick="submitFix()">Submit Ticket</button>
+  </div>
+</div>
+
+<!-- MODAL: Open Ticket -->
+<div class="modal-overlay" id="modal-ticket">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">+ Open New Ticket</div>
+      <div class="modal-close" onclick="closeModal('modal-ticket')">✕</div>
+    </div>
+    <div class="form-group" style="margin-bottom:12px;">
+      <label>Customer</label>
+      <select id="ticket-customer">
+        <option>Thai Plastic Factory</option>
+        <option>Seafood Restaurant</option>
+      </select>
+    </div>
+    <div class="form-group" style="margin-bottom:12px;">
+      <label>Issue Type</label>
+      <select id="ticket-type">
+        <option>Noise Issue</option>
+        <option>Filter Change</option>
+        <option>Power Failure</option>
+        <option>Leak / Water Issue</option>
+        <option>Other</option>
+      </select>
+    </div>
+    <div class="form-group" style="margin-bottom:12px;">
+      <label>Description</label>
+      <textarea id="ticket-desc" placeholder="Describe the issue..."></textarea>
+    </div>
+    <button class="btn-primary" style="width:100%;text-align:center;" onclick="submitTicket()">Open Ticket</button>
+  </div>
+</div>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="logo">
+    <div class="logo-icon">⚡</div>
+    <div class="logo-text">Terravolt Eco<span>Partner Portal</span></div>
+  </div>
+  <nav>
+    <div class="nav-label">Main</div>
+    <div class="nav-item active" onclick="navigate('dashboard',this)"><span class="nav-icon">📊</span> Dashboard</div>
+    <div class="nav-item" onclick="navigate('customers',this)"><span class="nav-icon">👥</span> My Customers</div>
+    <div class="nav-label">Operations</div>
+    <div class="nav-item" onclick="navigate('onboarding',this)"><span class="nav-icon">📋</span> Onboarding</div>
+    <div class="nav-item" onclick="navigate('tickets',this)"><span class="nav-icon">🔧</span> Service Tickets</div>
+    <div class="nav-label">Finance</div>
+    <div class="nav-item" onclick="navigate('wallet',this)"><span class="nav-icon">👛</span> Wallet</div>
+    <div class="nav-item" onclick="navigate('payment',this)"><span class="nav-icon">💳</span> Payment</div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="dealer-badge">
+      <div class="dealer-avatar">D</div>
+      <div>
+        <div class="dealer-name">Engineering Co.</div>
+        <div class="dealer-id">ID: DLR-001</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- ══════════════ DASHBOARD ══════════════ -->
+  <div class="page active" id="page-dashboard">
+    <div class="topbar">
+      <div class="page-title">Hello, Partner 👋<span>Manage your business &amp; clients</span></div>
+      <div class="topbar-actions">
+        <div class="btn-icon" id="dark-toggle" onclick="toggleDark()" title="Toggle theme">🌙</div>
+        <div class="btn-icon">EN</div>
+      </div>
+    </div>
+    <div class="stats">
+      <div class="card">
+        <div class="card-label">Monthly Commission</div>
+        <div class="card-value green" id="dash-commission">฿ 45,000</div>
+        <div class="card-sub"><span class="badge-up">▲</span> Paid on 22 Dec</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Pending Payment</div>
+        <div class="card-value yellow" id="dash-pending">฿ 8,200</div>
+        <div class="card-sub">Awaiting confirmation</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Active Clients</div>
+        <div class="card-value" id="dash-clients">15</div>
+        <div class="card-sub">Target: 20</div>
+        <div class="progress-bar"><div class="progress-fill" id="dash-progress"></div></div>
+      </div>
+    </div>
+    <div class="two-col">
+      <div class="card">
+        <div class="section-title">Recent Activity</div>
+        <div class="activity-list" id="activity-list">
+          <div class="activity-item">
+            <div class="activity-dot dot-green"></div>
+            <div class="activity-info">
+              <div class="activity-title">Client "Thai Factory" paid rent</div>
+              <div class="activity-time">Today, 10:30 AM</div>
+            </div>
+            <div class="activity-badge badge-income">Income</div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-dot dot-yellow"></div>
+            <div class="activity-info">
+              <div class="activity-title">Submitted "Seafood Restaurant"</div>
+              <div class="activity-time">Yesterday</div>
+            </div>
+            <div class="activity-badge badge-waiting">Waiting</div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="section-title">My Customers</div>
+        <div class="customer-list" id="dash-customers">
+          <div class="customer-item">
+            <div class="cust-avatar av-blue">TP</div>
+            <div class="cust-info">
+              <div class="cust-name">Thai Plastic Factory</div>
+              <div class="cust-pkg">Yearly (Pro) • Installed: 20/12/25</div>
+            </div>
+            <div class="status-text"><span class="status-dot s-paid"></span>Paid</div>
+            <button class="btn-fix" onclick="openFix('Thai Plastic Factory')">🛠️ Fix</button>
+          </div>
+          <div class="customer-item">
+            <div class="cust-avatar av-teal">SR</div>
+            <div class="cust-info">
+              <div class="cust-name">Seafood Restaurant</div>
+              <div class="cust-pkg">Monthly • Installed: 18/12/25</div>
+            </div>
+            <div class="status-text"><span class="status-dot s-pending"></span>Pending</div>
+            <button class="btn-fix" onclick="openFix('Seafood Restaurant')">🛠️ Fix</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ MY CUSTOMERS ══════════════ -->
+  <div class="page" id="page-customers">
+    <div class="topbar">
+      <div class="page-title">My Customers<span>All registered clients</span></div>
+    </div>
+    <div class="card">
+      <div class="customer-list" id="customers-list">
+        <div class="customer-item">
+          <div class="cust-avatar av-blue">TP</div>
+          <div class="cust-info">
+            <div class="cust-name">Thai Plastic Factory</div>
+            <div class="cust-pkg">Yearly (Pro) • Installed: 20/12/25</div>
+          </div>
+          <div class="status-text"><span class="status-dot s-paid"></span>Paid</div>
+          <button class="btn-fix" onclick="openFix('Thai Plastic Factory')">🛠️ Fix</button>
+        </div>
+        <div class="customer-item">
+          <div class="cust-avatar av-teal">SR</div>
+          <div class="cust-info">
+            <div class="cust-name">Seafood Restaurant</div>
+            <div class="cust-pkg">Monthly • Installed: 18/12/25</div>
+          </div>
+          <div class="status-text"><span class="status-dot s-pending"></span>Pending</div>
+          <button class="btn-fix" onclick="openFix('Seafood Restaurant')">🛠️ Fix</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ ONBOARDING ══════════════ -->
+  <div class="page" id="page-onboarding">
+    <div class="topbar">
+      <div class="page-title">New Customer Onboarding<span>Register a new client</span></div>
+    </div>
+    <div class="card">
+      <div class="step-label">1 — Customer Info</div>
+      <div class="form-grid" style="margin-bottom:18px;">
+        <div class="form-group"><label>Company Name</label><input type="text" id="ob-company" placeholder="e.g. ABC Co., Ltd." /><div class="field-error" id="err-company">กรุณากรอกชื่อบริษัท</div></div>
+        <div class="form-group"><label>Tax ID (13 Digits)</label><input type="text" id="ob-tax" placeholder="0000000000000" maxlength="13" /><div class="field-error" id="err-tax">Tax ID ต้องมี 13 หลัก</div></div>
+        <div class="form-group full"><label>Address</label><input type="text" id="ob-address" placeholder="Full address" /><div class="field-error" id="err-address">กรุณากรอกที่อยู่</div></div>
+        <div class="form-group full"><label>Google Maps Link</label><input type="url" id="ob-maps" placeholder="https://maps.google.com/..." /></div>
+      </div>
+      <div class="step-label">2 — Contact Person</div>
+      <div class="form-grid" style="margin-bottom:18px;">
+        <div class="form-group"><label>Contact Name</label><input type="text" id="ob-contact" placeholder="Full name" /><div class="field-error" id="err-contact">กรุณากรอกชื่อผู้ติดต่อ</div></div>
+        <div class="form-group"><label>Phone Number</label><input type="tel" id="ob-phone" placeholder="08X-XXX-XXXX" /><div class="field-error" id="err-phone">กรุณากรอกเบอร์โทรศัพท์</div></div>
+      </div>
+      <div class="step-label">3 — Package</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Select Package</label>
+          <select id="ob-package">
+            <option>Monthly Rent (Standard)</option>
+            <option>Yearly Rent (Pro)</option>
+            <option>Purchase (Lifetime)</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Install Date</label><input type="date" id="ob-date" /><div class="field-error" id="err-date">กรุณาเลือกวันติดตั้ง</div></div>
+      </div>
+      <button class="btn-primary" onclick="submitOnboarding()">Submit Registration</button>
+    </div>
+  </div>
+
+  <!-- ══════════════ SERVICE TICKETS ══════════════ -->
+  <div class="page" id="page-tickets">
+    <div class="topbar">
+      <div class="page-title">Service Tickets<span>Track customer issues</span></div>
+    </div>
+    <div class="card">
+      <button class="btn-new-ticket" onclick="document.getElementById('modal-ticket').classList.add('open')">+ Open Ticket</button>
+      <div class="ticket-list" id="ticket-list">
+        <div class="ticket-item">
+          <div class="ticket-id">#TCK-005</div>
+          <div>
+            <div class="ticket-title-text">Noise Issue</div>
+            <div class="ticket-sub">Customer: Sanook Resort • Reported: Yesterday</div>
+          </div>
+          <div class="ticket-status ts-checking">Checking</div>
+        </div>
+        <div class="ticket-item">
+          <div class="ticket-id">#TCK-001</div>
+          <div>
+            <div class="ticket-title-text">Filter Change</div>
+            <div class="ticket-sub">Customer: Thai Plastic • Reported: 10 Oct</div>
+          </div>
+          <div class="ticket-status ts-closed">Closed</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ WALLET ══════════════ -->
+  <div class="page" id="page-wallet">
+    <div class="topbar">
+      <div class="page-title">My Wallet<span>Commission &amp; transaction history</span></div>
+    </div>
+    <div class="stats" style="grid-template-columns:1fr 1fr;">
+      <div class="card">
+        <div class="card-label">Total Balance</div>
+        <div class="card-value green" id="wallet-total">฿ 45,000</div>
+        <div class="card-sub">Commission + Payments</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Pending</div>
+        <div class="card-value yellow" id="wallet-pending-total">฿ 0</div>
+        <div class="card-sub">Awaiting confirmation</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="section-title">Transaction History</div>
+      <div id="wallet-list">
+        <div class="wallet-item">
+          <div>
+            <div class="wallet-label">Commission Payout (Dec)</div>
+            <div class="wallet-ref">Ref: PAY-001 • 22 Dec 2025</div>
+          </div>
+          <div>
+            <div class="wallet-amount">+ ฿ 45,000</div>
+            <div class="wallet-status">✔ Success</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ PAYMENT ══════════════ -->
+  <div class="page" id="page-payment">
+    <div class="topbar">
+      <div class="page-title">Payment<span>Submit payment slip</span></div>
+    </div>
+
+    <!-- Payment Channel -->
+    <div class="card" style="margin-bottom:20px;">
+      <div class="section-title">Payment Channels</div>
+      <div class="payment-card">
+        <div class="bank-info">
+          <div style="font-size:22px;margin-bottom:8px;">🏦</div>
+          <div class="bank-name">KBANK</div>
+          <div class="bank-acct">099-2-XXXXX-X</div>
+        </div>
+        <div>
+          <div class="qr-box">
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=PromptPay-0992XXXXXX" width="140" height="140" alt="QR PromptPay" />
+          </div>
+          <div class="qr-caption">Scan PromptPay</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Submit Slip -->
+    <div class="card">
+      <div class="section-title">Submit Payment Slip</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Payment For</label>
+          <select id="pay-for">
+            <option>Thai Plastic Factory</option>
+            <option>Seafood Restaurant</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Date</label><input type="date" id="pay-date" /><div class="field-error" id="err-pay-date">กรุณาเลือกวันที่</div></div>
+        <div class="form-group"><label>Time</label><input type="time" id="pay-time" /><div class="field-error" id="err-pay-time">กรุณาระบุเวลา</div></div>
+        <div class="form-group"><label>Amount (THB)</label><input type="number" id="pay-amount" placeholder="0.00" min="1" /><div class="field-error" id="err-pay-amount">กรุณาระบุจำนวนเงิน</div></div>
+      </div>
+      <div class="upload-zone" id="upload-zone" onclick="document.getElementById('slip').click()">
+        <div class="upload-icon" id="upload-icon">📎</div>
+        <div id="upload-label">Click to Upload Slip</div>
+        <input id="slip" type="file" accept="image/*" style="display:none" onchange="handleSlip(this)" />
+      </div>
+      <div class="field-error" id="err-slip" style="margin-top:6px;">กรุณาอัปโหลดสลิป</div>
+      <div id="slip-preview-wrap" style="display:none;margin-top:10px;">
+        <img id="slip-preview" style="max-width:100%;border-radius:10px;border:1px solid var(--border);" />
+      </div>
+      <button class="btn-primary" onclick="confirmPayment()">Confirm Payment</button>
+    </div>
+  </div>
+
+</main>
+
+<script>
+  // ── STATE ──
+  let walletTotal = 45000;
+  let walletPending = 0;
+  let payCount = 1;
+  let ticketCount = 5;
+  let customerList = [
+    { initials:'TP', cls:'av-blue', name:'Thai Plastic Factory', pkg:'Yearly (Pro)', installed:'20/12/25', status:'Paid', statusCls:'s-paid' },
+    { initials:'SR', cls:'av-teal', name:'Seafood Restaurant',   pkg:'Monthly',      installed:'18/12/25', status:'Pending', statusCls:'s-pending' },
+  ];
+
+  // ── NAVIGATION ──
+  function navigate(page, el) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById('page-' + page).classList.add('active');
+    if (el) el.classList.add('active');
+    window.scrollTo(0,0);
+  }
+
+  // ── DARK MODE ──
+  function toggleDark() {
+    document.body.classList.toggle('light');
+    document.getElementById('dark-toggle').textContent = document.body.classList.contains('light') ? '☀️' : '🌙';
+  }
+
+  // ── TOAST ──
+  let toastTimer;
+  function showToast(icon, title, sub) {
+    clearTimeout(toastTimer);
+    document.getElementById('toast-icon').textContent = icon;
+    document.getElementById('toast-title').textContent = title;
+    document.getElementById('toast-sub').textContent = sub;
+    const t = document.getElementById('toast');
+    t.classList.add('show');
+    toastTimer = setTimeout(() => t.classList.remove('show'), 3500);
+  }
+
+  // ── FIX MODAL ──
+  function openFix(name) {
+    document.getElementById('fix-customer').value = name;
+    document.getElementById('fix-desc').value = '';
+    document.getElementById('modal-fix').classList.add('open');
+  }
+  function closeModal(id) {
+    document.getElementById(id).classList.remove('open');
+  }
+  function submitFix() {
+    const cust = document.getElementById('fix-customer').value;
+    const type = document.getElementById('fix-type').value;
+    addTicket(cust, type);
+    closeModal('modal-fix');
+    showToast('🛠️', 'Ticket Opened', cust + ' — ' + type);
+    navigate('tickets', document.querySelectorAll('.nav-item')[3]);
+  }
+
+  // ── OPEN TICKET MODAL ──
+  function submitTicket() {
+    const cust = document.getElementById('ticket-customer').value;
+    const type = document.getElementById('ticket-type').value;
+    addTicket(cust, type);
+    closeModal('modal-ticket');
+    showToast('🛠️', 'Ticket Opened', cust + ' — ' + type);
+  }
+
+  function addTicket(cust, type) {
+    ticketCount++;
+    const id = '#TCK-' + String(ticketCount).padStart(3, '0');
+    const today = new Date().toLocaleDateString('th-TH', { day:'2-digit', month:'short' });
+    const item = document.createElement('div');
+    item.className = 'ticket-item';
+    item.style.opacity = '0'; item.style.transform = 'translateY(8px)'; item.style.transition = '.35s';
+    item.innerHTML = `
+      <div class="ticket-id">${id}</div>
+      <div>
+        <div class="ticket-title-text">${type}</div>
+        <div class="ticket-sub">Customer: ${cust} • Reported: Today</div>
+      </div>
+      <div class="ticket-status ts-open">Open</div>
+    `;
+    const list = document.getElementById('ticket-list');
+    list.prepend(item);
+    requestAnimationFrame(() => requestAnimationFrame(() => { item.style.opacity='1'; item.style.transform='translateY(0)'; }));
+
+    // also add to activity
+    addActivity(cust + ' — ' + type + ' ticket opened', 'Just now', 'waiting');
+  }
+
+  // ── ONBOARDING ──
+  function submitOnboarding() {
+    const company = document.getElementById('ob-company').value.trim();
+    const tax = document.getElementById('ob-tax').value.trim();
+    const address = document.getElementById('ob-address').value.trim();
+    const contact = document.getElementById('ob-contact').value.trim();
+    const phone = document.getElementById('ob-phone').value.trim();
+    const date = document.getElementById('ob-date').value;
+    const pkg = document.getElementById('ob-package').value;
+
+    let ok = true;
+    function check(val, errId, cond) {
+      const e = document.getElementById(errId);
+      const inp = e.previousElementSibling;
+      if (!cond(val)) { e.style.display='block'; inp.classList.add('err'); ok=false; }
+      else { e.style.display='none'; inp.classList.remove('err'); }
+    }
+    check(company, 'err-company', v => v.length > 0);
+    check(tax, 'err-tax', v => v.length === 13 && /^\d+$/.test(v));
+    check(address, 'err-address', v => v.length > 0);
+    check(contact, 'err-contact', v => v.length > 0);
+    check(phone, 'err-phone', v => v.length >= 9);
+    check(date, 'err-date', v => v.length > 0);
+    if (!ok) return;
+
+    // Add to customer lists
+    const initials = company.split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
+    const colors = ['av-blue','av-teal','av-purple'];
+    const cls = colors[customerList.length % colors.length];
+    const installDate = new Date(date).toLocaleDateString('en-GB', { day:'2-digit', month:'2-digit', year:'2-digit' }).replace(/\//g,'/');
+    const newCust = { initials, cls, name: company, pkg, installed: installDate, status:'Pending', statusCls:'s-pending' };
+    customerList.push(newCust);
+
+    // Update customers page
+    renderCustomers();
+    // Update pay-for select
+    const opt = document.createElement('option');
+    opt.textContent = company;
+    document.getElementById('pay-for').appendChild(opt);
+    const opt2 = document.createElement('option');
+    opt2.textContent = company;
+    document.getElementById('ticket-customer').appendChild(opt2);
+
+    // Update active clients count
+    const n = customerList.length;
+    document.getElementById('dash-clients').textContent = n;
+    document.getElementById('dash-progress').style.width = Math.min(100, Math.round(n/20*100)) + '%';
+
+    addActivity('Registered "' + company + '"', 'Just now', 'waiting');
+
+    showToast('✅', 'Registration Submitted!', company + ' — ' + pkg);
+
+    // Reset
+    ['ob-company','ob-tax','ob-address','ob-maps','ob-contact','ob-phone','ob-date'].forEach(id => document.getElementById(id).value = '');
+
+    navigate('customers', document.querySelectorAll('.nav-item')[1]);
+  }
+
+  function renderCustomers() {
+    const html = customerList.map(c => `
+      <div class="customer-item">
+        <div class="cust-avatar ${c.cls}">${c.initials}</div>
+        <div class="cust-info">
+          <div class="cust-name">${c.name}</div>
+          <div class="cust-pkg">${c.pkg} • Installed: ${c.installed}</div>
+        </div>
+        <div class="status-text"><span class="status-dot ${c.statusCls}"></span>${c.status}</div>
+        <button class="btn-fix" onclick="openFix('${c.name}')">🛠️ Fix</button>
+      </div>
+    `).join('');
+    document.getElementById('customers-list').innerHTML = html;
+    document.getElementById('dash-customers').innerHTML = html;
+  }
+
+  // ── ACTIVITY ──
+  function addActivity(title, time, type) {
+    const item = document.createElement('div');
+    item.className = 'activity-item';
+    const dotCls = type === 'income' ? 'dot-green' : 'dot-yellow';
+    const badgeCls = type === 'income' ? 'badge-income' : 'badge-waiting';
+    const badgeText = type === 'income' ? 'Income' : 'Waiting';
+    item.innerHTML = `
+      <div class="activity-dot ${dotCls}"></div>
+      <div class="activity-info">
+        <div class="activity-title">${title}</div>
+        <div class="activity-time">${time}</div>
+      </div>
+      <div class="activity-badge ${badgeCls}">${badgeText}</div>
+    `;
+    document.getElementById('activity-list').prepend(item);
+  }
+
+  // ── SLIP UPLOAD ──
+  function handleSlip(input) {
+    if (!input.files || !input.files[0]) return;
+    const file = input.files[0];
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      document.getElementById('slip-preview').src = e.target.result;
+      document.getElementById('slip-preview-wrap').style.display = 'block';
+      document.getElementById('upload-icon').textContent = '✅';
+      document.getElementById('upload-label').textContent = file.name;
+      document.getElementById('err-slip').style.display = 'none';
+      document.getElementById('upload-zone').style.borderColor = 'var(--accent)';
+    };
+    reader.readAsDataURL(file);
+  }
+
+  // ── CONFIRM PAYMENT ──
+  function confirmPayment() {
+    const payFor = document.getElementById('pay-for').value;
+    const payDate = document.getElementById('pay-date').value;
+    const payTime = document.getElementById('pay-time').value;
+    const payAmount = parseFloat(document.getElementById('pay-amount').value);
+    const slipFile = document.getElementById('slip').files[0];
+
+    let ok = true;
+    function checkField(val, errId, cond) {
+      const e = document.getElementById(errId);
+      if (!cond(val)) { e.style.display='block'; ok=false; }
+      else { e.style.display='none'; }
+    }
+    checkField(payDate, 'err-pay-date', v => v.length > 0);
+    checkField(payTime, 'err-pay-time', v => v.length > 0);
+    checkField(payAmount, 'err-pay-amount', v => v > 0);
+    const slipErr = document.getElementById('err-slip');
+    if (!slipFile) { slipErr.style.display='block'; ok=false; } else { slipErr.style.display='none'; }
+    if (!ok) return;
+
+    const d = new Date(payDate + 'T' + payTime);
+    const dateStr = d.toLocaleDateString('th-TH', { day:'2-digit', month:'short', year:'2-digit' });
+    const timeStr = d.toLocaleTimeString('th-TH', { hour:'2-digit', minute:'2-digit' });
+
+    payCount++;
+    const ref = 'PAY-' + String(payCount).padStart(3,'0');
+
+    walletPending += payAmount;
+    document.getElementById('wallet-pending-total').textContent = '฿ ' + walletPending.toLocaleString();
+
+    // Add wallet entry
+    const list = document.getElementById('wallet-list');
+    const item = document.createElement('div');
+    item.className = 'wallet-item';
+    item.style.opacity = '0'; item.style.transform = 'translateY(8px)'; item.style.transition = '.35s';
+    item.innerHTML = `
+      <div>
+        <div class="wallet-label">${payFor}</div>
+        <div class="wallet-ref">Ref: ${ref} • ${dateStr} ${timeStr}</div>
+      </div>
+      <div>
+        <div class="wallet-amount">+ ฿ ${payAmount.toLocaleString()}</div>
+        <div class="wallet-status wallet-pending">⏳ Pending</div>
+      </div>
+    `;
+    list.prepend(item);
+    requestAnimationFrame(() => requestAnimationFrame(() => { item.style.opacity='1'; item.style.transform='translateY(0)'; }));
+
+    addActivity(payFor + ' payment submitted', 'Just now', 'waiting');
+    showToast('💳', 'Payment Submitted!', payFor + ' • ฿ ' + payAmount.toLocaleString());
+
+    // Reset
+    document.getElementById('pay-date').value = '';
+    document.getElementById('pay-time').value = '';
+    document.getElementById('pay-amount').value = '';
+    document.getElementById('slip').value = '';
+    document.getElementById('slip-preview-wrap').style.display = 'none';
+    document.getElementById('upload-icon').textContent = '📎';
+    document.getElementById('upload-label').textContent = 'Click to Upload Slip';
+    document.getElementById('upload-zone').style.borderColor = '';
+
+    // Go to wallet after short delay
+    setTimeout(() => navigate('wallet', document.querySelectorAll('.nav-item')[5]), 800);
+  }
+
+  // Close modal when clicking overlay
+  document.querySelectorAll('.modal-overlay').forEach(overlay => {
+    overlay.addEventListener('click', e => { if (e.target === overlay) overlay.classList.remove('open'); });
+  });
+</script>
+</body>
+</html>
