@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function Home() {
+export default function Home() {   
   return (
     <div className="bg-[#090d16] text-white min-h-screen font-sans overflow-x-hidden selection:bg-[#ccff00] selection:text-black">
       
